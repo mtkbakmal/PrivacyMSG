@@ -2,6 +2,7 @@ from datetime import datetime as dt
 from sqlalchemy import String, func, select, update, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from security import hash_password #*Импортирую функцию хэширования пароля из security.py
 
 import config.config as cfg
 
@@ -20,6 +21,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # id в БД и приложении
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False) # имя пользователя
     email: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
+    hashed_password: Mapped[str] = mapped_column(String(128), nullable=False) #! Колонка хэшированного пароля
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
@@ -31,9 +33,14 @@ async def add_new_user(username: str, description: str | None, email: str, passw
         exist = await session.scalar(select(User).where(User.username==username))
         if exist: # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
             return
-        new_user = User(username=username, description=description, email=email, password=password) # ! Пароль нужно хэшировать
+        #!Хэшируем пароль перед сохранением
+        hashed_pwd = hash_password(password)
+
+        new_user = User(username=username, description=description, email=email, hashed_password=hashed_pwd) # ! Пароль нужно хэшировать #! Хэшировал
         session.add(new_user)
         await session.commit()
+
+#TODO: Когда делаем авторизацию нужно доставать пользователя по username и сравнивать введенный пароль с помощью функции verify_password из security.py
 
 # Функция удаления пользователя из БД
 async def delete_user(id: int):
