@@ -1,10 +1,10 @@
 from datetime import datetime as dt
-from sqlalchemy import String, func, select, update, delete
+from sqlalchemy import String, func, select, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from security import hash_password #*Импортирую функцию хэширования пароля из security.py
 
-import config.config as cfg
+from app import config as cfg
 
 DATABASE_URL = cfg.get_db_url()
 
@@ -46,7 +46,7 @@ async def add_new_user(username: str, description: str | None, email: str, passw
 async def delete_user(id: int):
     async with async_session() as session:
         exist = await session.scalar(select(User).where(User.id==id))
-        if not exist: # Если пользователя не существует то функция ничего не возвращет
+        if not exist: # Если пользователя не существует, то функция ничего не возвращает
             return
         delete_stmt = delete(User).where(User.id==id)
         await session.execute(delete_stmt)
