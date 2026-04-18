@@ -22,7 +22,6 @@ class User(Base):
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
-#TODO: Нужно создать также таблицы для чатов и сообщений
 #TODO: Написать функции для удаления пользователя из таблицы
 
 # Функция добавления нового пользователя в БД
@@ -33,4 +32,14 @@ async def add_new_user(username: str, description: str | None):
             return
         new_user = User(username=username, description=description)
         session.add(new_user)
+        await session.commit()
+
+# Функция удаления пользователя из БД
+async def delete_user(id: int):
+    async with async_session() as session:
+        exist = await session.scalar(select(User).where(User.id==id))
+        if not exist: # Если пользователя не существует то функция ничего не возвращет
+            return
+        delete_stmt = delete(User).where(User.id==id)
+        await session.execute(delete_stmt)
         await session.commit()
