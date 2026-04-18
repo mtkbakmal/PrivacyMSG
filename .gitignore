@@ -1,8 +1,12 @@
-venv/
-.venv/
-env/
-
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
 
-.idea
-# ? Ну вообще .env нужно тоже добавлять, но в данной ситуации хз
+# PyCharm / JetBrains
+.idea/
+*.iws
+*.iml
+*.ipr
