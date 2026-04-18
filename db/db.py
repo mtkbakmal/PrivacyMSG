@@ -3,10 +3,12 @@ from sqlalchemy import String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
-# ? DATABASE_URL = {URL базы данных (лучше импортировать с переменных окружения)}
+import config.config as cfg
 
-# ? engine = create_async_engine(DATABASE_URL, echo=True)
-# ? async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+DATABASE_URL = cfg.get_db_url()
+
+engine = create_async_engine(DATABASE_URL, echo=True)
+async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
 
 class Base(DeclarativeBase):
     pass
