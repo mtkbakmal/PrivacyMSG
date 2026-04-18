@@ -19,18 +19,19 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # id в БД и приложении
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False) # имя пользователя
+    email: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
 #TODO: Написать функции для удаления пользователя из таблицы
 
 # Функция добавления нового пользователя в БД
-async def add_new_user(username: str, description: str | None):
+async def add_new_user(username: str, description: str | None, email: str, password: str):
     async with async_session() as session:
         exist = await session.scalar(select(User).where(User.username==username))
         if exist: # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
             return
-        new_user = User(username=username, description=description)
+        new_user = User(username=username, description=description, email=email, password=password) # ! Пароль нужно хэшировать
         session.add(new_user)
         await session.commit()
 
