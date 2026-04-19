@@ -65,3 +65,14 @@ async def login_user(username: str, password: str) -> bool:
             return True
         else: return False
 
+# Функции для проверок, существует ли уже в базе пользователь с каким-либо username | email
+async def is_there_user_with_username(username: str) -> bool:
+    async with async_session() as session:
+        exist = await session.scalar(select(User).where(User.username==username))
+        return True if exist else False
+    
+async def is_there_user_with_email(email: str) -> bool:
+    async with async_session() as session:
+        exist = await session.scalar(select(User).where(User.email==email))
+        return True if exist else False
+
