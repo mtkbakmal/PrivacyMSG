@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from app.db.db import login_user, add_new_user
 
-from app.models.baseModels import RegisterSchema, LoginSchema
+from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
 common_responses = {
     401: {"description": "Пользователь не авторизован"},
