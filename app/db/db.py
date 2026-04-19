@@ -24,6 +24,11 @@ class User(Base):
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
+# Функция для инициализации самой БД
+async def init_db():
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+
 # Функция добавления нового пользователя в БД
 async def add_new_user(username: str, description: str | None, email: str, password: str):
     async with async_session() as session:
