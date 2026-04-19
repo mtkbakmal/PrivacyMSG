@@ -9,6 +9,7 @@ from app.db.db import login_user, add_new_user
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
 common_responses = {
+    400: {"description": "Ошибка при регистрации"},
     401: {"description": "Пользователь не авторизован"},
     500: {"description": "Внутренняя ошибка сервера"},
 }
@@ -43,7 +44,7 @@ async def register(data: RegisterSchema):
         )
         return {"status": "ok", "message": "Пользователь создан"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Ошибка при регистрации")
+        raise HTTPException(status_code=400, detail=common_responses[400])
 
 @app.post("/login")
 async def login(data: LoginSchema):
