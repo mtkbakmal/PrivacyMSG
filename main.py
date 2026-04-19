@@ -6,15 +6,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from app.db.db import login_user, add_new_user
 
-class RegisterSchema(BaseModel):
-    username: str
-    email: str
-    password: str
-    description: str = None
-
-class LoginSchema(BaseModel):
-    username: str
-    password: str
+from app.models.baseModels import RegisterSchema, LoginSchema
 
 common_responses = {
     401: {"description": "Пользователь не авторизован"},
