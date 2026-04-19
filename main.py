@@ -1,10 +1,11 @@
 import uvicorn
+import asyncio
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from app.db.db import login_user, add_new_user
+from app.db.db import login_user, add_new_user, init_db
 
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
@@ -60,5 +61,10 @@ async def login(data: LoginSchema):
 
     return {"status": "ok", "message": "Успешная авторизация"}
 
-if __name__ == "__main__":
+async def main():
+    await init_db()
     uvicorn.run(app, host="127.0.0.1", port=8080)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
