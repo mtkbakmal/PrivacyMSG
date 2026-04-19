@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from sqlalchemy import String, func, select, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from security import hash_password #*Импортирую функцию хэширования пароля из security.py
+from security import hash_password, verify_password
 
 from app import config as cfg
 
@@ -25,13 +25,12 @@ class User(Base):
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
-#TODO: Написать функции для удаления пользователя из таблицы
-
 # Функция добавления нового пользователя в БД
 async def add_new_user(username: str, description: str | None, email: str, password: str):
     async with async_session() as session:
+        # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
         exist = await session.scalar(select(User).where(User.username==username))
-        if exist: # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
+        if exist: 
             return
         #!Хэшируем пароль перед сохранением
         hashed_pwd = hash_password(password)
@@ -45,9 +44,25 @@ async def add_new_user(username: str, description: str | None, email: str, passw
 # Функция удаления пользователя из БД
 async def delete_user(id: int):
     async with async_session() as session:
+        # Если пользователя не существует, то функция ничего не возвращает
         exist = await session.scalar(select(User).where(User.id==id))
-        if not exist: # Если пользователя не существует, то функция ничего не возвращает
+        if not exist: 
             return
         delete_stmt = delete(User).where(User.id==id)
         await session.execute(delete_stmt)
         await session.commit()
+
+# Функция авторизации пользователя
+# * Скорей всего будет меняться в будущем, пока что рабочий по своему прототип
+async def login_user(username: str, password: str) -> bool:
+    async with async_session() as session:
+        # Проверяет, существует ли пользователь с таким username и возвращает False если нет
+        exist = await session.scalar(select(User).where(User.username==username)) 
+        if not exist: 
+            return False
+        hashed_password = await session.scalar(select(User.hashed_password).where(User.username==username))
+        # Ели совпадает хэшированный пароль из БД с полученным паролем - возвращает True, иначе - False
+        if verify_password(plain_password=password, hashed_password=hashed_password):
+            return True
+        else: return False
+
