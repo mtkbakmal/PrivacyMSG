@@ -63,40 +63,83 @@
         const authForm = document.getElementById('auth-form');
         const authScreen = document.getElementById('auth-screen');
         const chatScreen = document.getElementById('chat-screen');
+        const emailInput = document.getElementById('email');
+        const authSubmitBtn = document.getElementById('auth-submit');
+
+        let currentMode = 'login'; // По умолчанию режим входа
+
+        // Функция переключения вкладок
+        function switchAuth(mode) {
+            currentMode = mode;
+            if (mode === 'register') {
+                emailInput.classList.remove('hidden');
+                emailInput.required = true;
+                authSubmitBtn.innerText = 'Создать аккаунт';
+                document.getElementById('tab-register').classList.add('active');
+                document.getElementById('tab-login').classList.remove('active');
+            } else {
+                emailInput.classList.add('hidden');
+                emailInput.required = false;
+                authSubmitBtn.innerText = 'Войти';
+                document.getElementById('tab-login').classList.add('active');
+                document.getElementById('tab-register').classList.remove('active');
+            }
+        }
 
         authForm.onsubmit = async (e) => {
             e.preventDefault();
 
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
+            const email = emailInput.value;
 
-            if (currentMode === 'login') {
-                try {
-                    const response = await fetch('/login', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username, password })
-                    });
+            // Определяем URL и тело запроса в зависимости от режима
+            const url = currentMode === 'login' ? '/login' : '/register';
+            const body = currentMode === 'login'
+                ? { username, password }
+                : { username, password, email };
 
-                    const result = await response.json();
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
 
-                    if (response.ok) {
-                        // Если бэкенд вернул 200 OK
+                const result = await response.json();
+
+                if (response.ok) {
+                    if (currentMode === 'register') {
+                        alert("Регистрация успешна! Теперь войдите.");
+                        switchAuth('login');
+                    } else {
                         authScreen.classList.add('hidden');
                         chatScreen.classList.remove('hidden');
                         document.getElementById('user-display').innerText = `@${username}`;
-                    } else {
-                        // Если бэкенд вернул ошибку (например, 401)
-                        alert(result.detail || "Ошибка авторизации");
                     }
-                } catch (error) {
-                    console.error("Ошибка запроса:", error);
-                    alert("Сервер не отвечает");
+                } else {
+                    alert(result.detail || "Произошла ошибка");
                 }
-            } else {
-                // Здесь логика для регистрации (нужно создать эндпоинт /register)
-                alert("Регистрация пока не реализована на бэкенде");
+            } catch (error) {
+                console.error("Ошибка запроса:", error);
+                alert("Сервер не отвечает");
             }
+        };
+
+        // Логика отправки сообщения в интерфейс (визуал)
+        document.getElementById('message-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim()) return;
+
+            const msgArea = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg outgoing';
+            msgDiv.innerText = input.value;
+            msgArea.appendChild(msgDiv);
+
+            input.value = '';
+            msgArea.scrollTop = msgArea.scrollHeight;
         };
     </script>
 </body>

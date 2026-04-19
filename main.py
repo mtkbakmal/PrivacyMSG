@@ -4,7 +4,13 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from app.db.db import login_user
+from app.db.db import login_user, add_new_user
+
+class RegisterSchema(BaseModel):
+    username: str
+    email: str
+    password: str
+    description: str = None
 
 class LoginSchema(BaseModel):
     username: str
@@ -33,6 +39,19 @@ async def root(request: Request):
         context={"title": "Главная"}
     )
 
+@app.post("/register")
+async def register(data: RegisterSchema):
+    # немного адаптируем логику вызова
+    try:
+        await add_new_user(
+            username=data.username,
+            email=data.email,
+            password=data.password,
+            description=data.description
+        )
+        return {"status": "ok", "message": "Пользователь создан"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Ошибка при регистрации")
 
 @app.post("/login")
 async def login(data: LoginSchema):
@@ -47,10 +66,6 @@ async def login(data: LoginSchema):
         )
 
     return {"status": "ok", "message": "Успешная авторизация"}
-
-
-# Роут для регистрации (опционально, по аналогии)
-# @app.post("/register") ...
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8080)
