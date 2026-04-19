@@ -1,11 +1,113 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
-    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | PrivacyMSG</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <h1>сикс севен</h1>
+    <div class="app-container">
+        <div id="auth-screen" class="card auth-card">
+            <div class="auth-tabs">
+                <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Вход</button>
+                <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">Регистрация</button>
+            </div>
+
+            <h2 id="auth-title">PrivacyMSG</h2>
+
+            <form id="auth-form">
+                <input type="text" id="username" placeholder="Имя пользователя" required>
+                <input type="email" id="email" placeholder="Электронная почта" class="hidden">
+                <input type="password" id="password" placeholder="Пароль" required>
+                <button type="submit" id="auth-submit" class="btn-primary">Войти</button>
+            </form>
+        </div>
+
+        <div id="chat-screen" class="messenger-container hidden">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <span id="user-display">@me</span>
+                </div>
+                <div class="contact-list">
+                    <div class="contact active">
+                        <div class="avatar">S</div>
+                        <div class="contact-info">
+                            <span class="name">Support Bot</span>
+                            <span class="status">online</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="chat-main">
+                <header class="chat-header">
+                    <div class="current-contact">Чат с: <strong>Support Bot</strong></div>
+                    <button onclick="location.reload()" class="btn-small">Выйти</button>
+                </header>
+
+                <div id="chat-messages" class="messages-area">
+                    <div class="msg system">Безопасное соединение установлено.</div>
+                </div>
+
+                <form class="chat-input-area" id="message-form">
+                    <input type="text" id="msg-input" placeholder="Введите сообщение..." autocomplete="off">
+                    <button type="submit" id="send-btn">➤</button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'login';
+
+        function switchAuth(mode) {
+            currentMode = mode;
+            const emailField = document.getElementById('email');
+            const submitBtn = document.getElementById('auth-submit');
+            const tabLogin = document.getElementById('tab-login');
+            const tabRegister = document.getElementById('tab-register');
+
+            if (mode === 'register') {
+                emailField.classList.remove('hidden');
+                emailField.required = true;
+                submitBtn.innerText = 'Создать аккаунт';
+                tabRegister.classList.add('active');
+                tabLogin.classList.remove('active');
+            } else {
+                emailField.classList.add('hidden');
+                emailField.required = false;
+                submitBtn.innerText = 'Войти';
+                tabLogin.classList.add('active');
+                tabRegister.classList.remove('active');
+            }
+        }
+
+        // Обработка авторизации
+        document.getElementById('auth-form').onsubmit = (e) => {
+            e.preventDefault();
+            // Здесь будет fetch(currentMode === 'login' ? '/login' : '/register', ...)
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('chat-screen').classList.remove('hidden');
+            document.getElementById('user-display').innerText = `@${document.getElementById('username').value}`;
+        };
+
+        // Обработка отправки сообщений (визуальная часть)
+        document.getElementById('message-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim()) return;
+
+            const msgArea = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg outgoing';
+            msgDiv.innerText = input.value;
+            msgArea.appendChild(msgDiv);
+
+            input.value = '';
+            msgArea.scrollTop = msgArea.scrollHeight;
+        };
+    </script>
 </body>
 </html>

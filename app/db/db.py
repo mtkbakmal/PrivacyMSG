@@ -6,7 +6,7 @@ from security import hash_password, verify_password
 
 from app import config as cfg
 
-DATABASE_URL = cfg.get_db_url()
+DATABASE_URL = cfg.get_db_url
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
