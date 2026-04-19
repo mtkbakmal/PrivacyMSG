@@ -1,8 +1,14 @@
 import uvicorn
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
+from app.db.db import login_user
+
+class LoginSchema(BaseModel):
+    username: str
+    password: str
 
 common_responses = {
     401: {"description": "Пользователь не авторизован"},
@@ -27,9 +33,24 @@ async def root(request: Request):
         context={"title": "Главная"}
     )
 
+
 @app.post("/login")
-async def login(data: dict):
-    pass
+async def login(data: LoginSchema):
+    # Вызываем функцию из db.py
+    success = await login_user(username=data.username, password=data.password)
+
+    if not success:
+        # Если пароль неверный или пользователя нет кидаем 401
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Неверное имя пользователя или пароль"
+        )
+
+    return {"status": "ok", "message": "Успешная авторизация"}
+
+
+# Роут для регистрации (опционально, по аналогии)
+# @app.post("/register") ...
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8080)

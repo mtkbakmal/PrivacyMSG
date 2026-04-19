@@ -2,9 +2,8 @@ from datetime import datetime as dt
 from sqlalchemy import String, func, select, delete
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from security import hash_password, verify_password
-
-from app import config as cfg
+from app.db.security import hash_password, verify_password
+from app.config.config import settings as cfg
 
 DATABASE_URL = cfg.get_db_url
 
@@ -32,7 +31,7 @@ async def add_new_user(username: str, description: str | None, email: str, passw
         exist = await session.scalar(select(User).where(User.username==username))
         if exist: 
             return
-        #!Хэшируем пароль перед сохранением
+        #! Хэшируем пароль перед сохранением
         hashed_pwd = hash_password(password)
 
         new_user = User(username=username, description=description, email=email, hashed_password=hashed_pwd) # ! Пароль нужно хэшировать #! Хэшировал

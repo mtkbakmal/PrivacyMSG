@@ -60,53 +60,43 @@
     </div>
 
     <script>
-        let currentMode = 'login';
+        const authForm = document.getElementById('auth-form');
+        const authScreen = document.getElementById('auth-screen');
+        const chatScreen = document.getElementById('chat-screen');
 
-        function switchAuth(mode) {
-            currentMode = mode;
-            const emailField = document.getElementById('email');
-            const submitBtn = document.getElementById('auth-submit');
-            const tabLogin = document.getElementById('tab-login');
-            const tabRegister = document.getElementById('tab-register');
+        authForm.onsubmit = async (e) => {
+            e.preventDefault();
 
-            if (mode === 'register') {
-                emailField.classList.remove('hidden');
-                emailField.required = true;
-                submitBtn.innerText = 'Создать аккаунт';
-                tabRegister.classList.add('active');
-                tabLogin.classList.remove('active');
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (currentMode === 'login') {
+                try {
+                    const response = await fetch('/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password })
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        // Если бэкенд вернул 200 OK
+                        authScreen.classList.add('hidden');
+                        chatScreen.classList.remove('hidden');
+                        document.getElementById('user-display').innerText = `@${username}`;
+                    } else {
+                        // Если бэкенд вернул ошибку (например, 401)
+                        alert(result.detail || "Ошибка авторизации");
+                    }
+                } catch (error) {
+                    console.error("Ошибка запроса:", error);
+                    alert("Сервер не отвечает");
+                }
             } else {
-                emailField.classList.add('hidden');
-                emailField.required = false;
-                submitBtn.innerText = 'Войти';
-                tabLogin.classList.add('active');
-                tabRegister.classList.remove('active');
+                // Здесь логика для регистрации (нужно создать эндпоинт /register)
+                alert("Регистрация пока не реализована на бэкенде");
             }
-        }
-
-        // Обработка авторизации
-        document.getElementById('auth-form').onsubmit = (e) => {
-            e.preventDefault();
-            // Здесь будет fetch(currentMode === 'login' ? '/login' : '/register', ...)
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('chat-screen').classList.remove('hidden');
-            document.getElementById('user-display').innerText = `@${document.getElementById('username').value}`;
-        };
-
-        // Обработка отправки сообщений (визуальная часть)
-        document.getElementById('message-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim()) return;
-
-            const msgArea = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg outgoing';
-            msgDiv.innerText = input.value;
-            msgArea.appendChild(msgDiv);
-
-            input.value = '';
-            msgArea.scrollTop = msgArea.scrollHeight;
         };
     </script>
 </body>
