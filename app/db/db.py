@@ -19,7 +19,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # id в БД и приложении
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False) # имя пользователя
-    email: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(64), unique=True, nullable=False) # Email пользователя
     hashed_password: Mapped[str] = mapped_column(String(128), nullable=False) # Колонка хэшированного пароля
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
@@ -46,8 +46,6 @@ async def add_new_user(username: str, description: str | None, email: str, passw
         session.add(new_user)
         await session.commit() 
         return new_user
-
-#TODO: Когда делаем авторизацию нужно доставать пользователя по username и сравнивать введенный пароль с помощью функции verify_password из security.py
 
 # Функция удаления пользователя из БД
 async def delete_user(id: int):
