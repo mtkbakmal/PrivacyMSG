@@ -1,11 +1,11 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, EmailStr
 
 class RegisterSchema(BaseModel):
-    username: str
-    email: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=32, pattern=r"^[a-zA-Z0-9_]+$")
+    email: EmailStr = Field(..., max_length=64)
+    password: str = Field(..., min_length=8)
     description: str = None
 
 class LoginSchema(BaseModel):
-    username: str
-    password: str
+    username: str = Field(..., min_length=3, max_length=32, pattern=r"^[a-zA-Z0-9_]+$")
+    password: str = Field(..., min_length=8)
