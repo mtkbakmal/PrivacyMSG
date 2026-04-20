@@ -20,7 +20,7 @@ class User(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)  # id в БД и приложении
     username: Mapped[str] = mapped_column(String(32), unique=True, nullable=False) # имя пользователя
     email: Mapped[str] = mapped_column(String(32), unique=True, nullable=False)
-    hashed_password: Mapped[str] = mapped_column(String(128), nullable=False) #! Колонка хэшированного пароля
+    hashed_password: Mapped[str] = mapped_column(String(128), nullable=False) # Колонка хэшированного пароля
     description: Mapped[str] = mapped_column(String(100), unique=False, nullable=True) # Описание профиля
     created_at: Mapped[dt] = mapped_column(server_default=func.now()) # Дата создания аккаунта
 
@@ -33,15 +33,18 @@ async def init_db():
 async def add_new_user(username: str, description: str | None, email: str, password: str):
     async with async_session() as session:
         # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
-        exist = await session.scalar(select(User).where(User.username==username))
-        if exist: 
-            return
-        #! Хэшируем пароль перед сохранением
+        query = await session.scalar(select(User).where(User.username==username | User.email==email))
+        result = await session.execute(query)
+        if result.scalar_one_or_none():
+            return None
+        
+        # Хэшируем пароль перед сохранением
         hashed_pwd = hash_password(password)
 
-        new_user = User(username=username, description=description, email=email, hashed_password=hashed_pwd) # ! Пароль нужно хэшировать #! Хэшировал
+        new_user = User(username=username, description=description, email=email, hashed_password=hashed_pwd)
         session.add(new_user)
-        await session.commit()
+        await session.commit() 
+        return new_user
 
 #TODO: Когда делаем авторизацию нужно доставать пользователя по username и сравнивать введенный пароль с помощью функции verify_password из security.py
 
