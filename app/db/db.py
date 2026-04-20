@@ -31,9 +31,10 @@ async def init_db():
 
 # Функция добавления нового пользователя в БД
 async def add_new_user(username: str, description: str | None, email: str, password: str):
+    print(f"DEBUG: Password: {password}")
     async with async_session() as session:
         # Проверка, существует ли пользователь с таким username. Если да, то возвращает None
-        query = await select(User).where(or_(User.username==username, User.email==email))
+        query = select(User).where(or_(User.username==username, User.email==email))
         result = await session.execute(query)
         if result.scalar_one_or_none():
             return None
