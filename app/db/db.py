@@ -1,5 +1,5 @@
 from datetime import datetime as dt
-from sqlalchemy import String, func, select, delete
+from sqlalchemy import String, func, select, delete, or_
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from app.db.security import hash_password, verify_password
@@ -32,8 +32,8 @@ async def init_db():
 # Функция добавления нового пользователя в БД
 async def add_new_user(username: str, description: str | None, email: str, password: str):
     async with async_session() as session:
-        # Проверка, существует ли пользователь с таким username. Если да, то возвращает ничего
-        query = await session.scalar(select(User).where(User.username==username | User.email==email))
+        # Проверка, существует ли пользователь с таким username. Если да, то возвращает None
+        query = await select(User).where(or_(User.username==username, User.email==email))
         result = await session.execute(query)
         if result.scalar_one_or_none():
             return None
