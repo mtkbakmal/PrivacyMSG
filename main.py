@@ -37,15 +37,17 @@ async def root(request: Request):
 async def register(data: RegisterSchema):
     # немного адаптируем логику вызова
     try:
-        await add_new_user(
-            username=data.username,
-            email=data.email,
-            password=data.password,
-            description=data.description
-        )
+        user = await add_new_user(
+                username=data.username,
+                email=data.email,
+                password=data.password,
+                description=data.description
+            )
+        if user is None:
+            raise HTTPException(status_code=409, detail="Пользователь с таким username или email уже зарегестрирован")
         return {"status": "ok", "message": "Пользователь создан"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail="Ошибка при регистрации")
+        raise HTTPException(status_code=400, detail="Возникли проблемы во время регитрации")
 
 @app.post("/login")
 async def login(data: LoginSchema):
