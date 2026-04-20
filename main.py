@@ -4,6 +4,8 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from app.db.db import login_user, add_new_user, init_db
 
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
@@ -40,6 +42,15 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 # Подключение html
 templates = Jinja2Templates(directory="app/templates")
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    # Здесь мы берем первую ошибку из списка и превращаем её в строку
+    err_msg = exc.errors()[0].get("msg")
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"status": "error", "detail": f"Ошибка валидации: {err_msg}"},
+    )
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):
