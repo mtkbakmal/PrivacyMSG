@@ -45,7 +45,7 @@ async def register(data: RegisterSchema):
         )
         return {"status": "ok", "message": "Пользователь создан"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail=common_responses[400])
+        raise HTTPException(status_code=400, detail="Ошибка при регистрации")
 
 @app.post("/login")
 async def login(data: LoginSchema):
