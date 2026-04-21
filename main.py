@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
 
 from app.db.db import login_user, add_new_user, init_db
+from app.config.config import settings as cfg
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
 common_responses = {
@@ -41,7 +42,7 @@ app = FastAPI(
 )
 
 config = AuthXConfig()
-config.JWT_SECRET_KEY = ... # JWT код
+config.JWT_SECRET_KEY = cfg.get_jwt_key # JWT код
 config.JWT_ACCESS_COOKIE_NAME = "access_token" # Название токенов куки
 # ! ПОКА ЧТО БУДЕМ ХРАНИТЬ В КУКАХ, ПОТОМ НАДО ПЕРЕХОДИТЬ НА СЕССИИ ИЛИ ЗАГОЛОВКИ
 config.JWT_TOKEN_LOCATION = ["cookies"] # Указываем что токены будут находиться в куках
