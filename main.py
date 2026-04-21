@@ -8,6 +8,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
 from authx.exceptions import MissingTokenError as ThereIsNoAccessError # Получение ошибки отсутсвия токена доступа
+from contextlib import asynccontextmanager
 
 from app.db.db import login_user, add_new_user, init_db
 from app.config.config import settings as cfg
@@ -36,10 +37,17 @@ common_responses = {
     504: {"description": "Шлюз не отвечает (тайм-аут)"},
 }
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_db()
+    yield
+    print("Shutting down...")
+
 app = FastAPI(
     title="PrivacyMSG API",
     version="1.0.0",
-    responses=common_responses
+    responses=common_responses,
+    lifespan=lifespan
 )
 
 JWT_config = AuthXConfig()
@@ -130,9 +138,5 @@ async def logout(response: Response):
     response.delete_cookie(JWT_config.JWT_ACCESS_COOKIE_NAME)
     return {"status": "ok", "message": "Вы вышли из системы"}
 
-async def main():
-    await init_db()
-
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8080)
-    asyncio.run(main())
