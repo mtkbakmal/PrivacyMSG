@@ -60,6 +60,7 @@
                 if (response.ok) {
                     localStorage.removeItem('chat_username', username)
                     window.location.href = '/auth'; // Возврат на страницу логина
+                    alert("Вы вышли из системы")
                 } else {
                     alert("Ошибка при выходе из системы")
                 }
