@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
-from authx.exceptions import JWTDecodeError as ThereIsNoAccessError
+from authx.exceptions import MissingTokenError as ThereIsNoAccessError # Получение ошибки отсутсвия токена доступа
 
 from app.db.db import login_user, add_new_user, init_db
 from app.config.config import settings as cfg
@@ -125,10 +125,10 @@ async def login(data: LoginSchema, response: Response):
 
     return {"status": "ok", "message": "Успешная авторизация", "access_token": token}
 
-# ! Функция для выхода из аккаунта, чтоб куки типА удалялись
 @app.post("/logout")
-async def logout():
-    pass
+async def logout(response: Response):
+    response.delete_cookie(JWT_config.JWT_ACCESS_COOKIE_NAME)
+    return {"status": "ok", "message": "Вы вышли из системы"}
 
 async def main():
     await init_db()

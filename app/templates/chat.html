@@ -48,9 +48,25 @@
         const username = localStorage.getItem('chat_username') || 'Guest';
         document.getElementById('user-display').innerText = `@${username}`;
 
-        function logout() {
-            localStorage.removeItem('chat_username');
-            window.location.href = '/'; // Возврат на страницу логина
+        async function logout() {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST', // Используем POST, как и в Python
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    localStorage.removeItem('chat_username', username)
+                    window.location.href = '/auth'; // Возврат на страницу логина
+                } else {
+                    alert("Ошибка при выходе из системы")
+                }
+
+            } catch (error) {
+                console.error("Ошибка сети:", error);
+            }
         }
 
         document.getElementById('message-form').onsubmit = (e) => {
