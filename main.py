@@ -1,12 +1,13 @@
 import uvicorn
 import asyncio
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI, Request, HTTPException, status, Response, Depends
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
+from authx.exceptions import JWTDecodeError as ThereIsNoAccessError
 
 from app.db.db import login_user, add_new_user, init_db
 from app.config.config import settings as cfg
@@ -41,11 +42,13 @@ app = FastAPI(
     responses=common_responses
 )
 
-config = AuthXConfig()
-config.JWT_SECRET_KEY = cfg.get_jwt_key # JWT код
-config.JWT_ACCESS_COOKIE_NAME = "access_token" # Название токенов куки
+JWT_config = AuthXConfig()
+JWT_config.JWT_SECRET_KEY = cfg.get_jwt_key # JWT код
+JWT_config.JWT_ACCESS_COOKIE_NAME = "access_token" # Название токенов куки
 # ! ПОКА ЧТО БУДЕМ ХРАНИТЬ В КУКАХ, ПОТОМ НАДО ПЕРЕХОДИТЬ НА СЕССИИ ИЛИ ЗАГОЛОВКИ
-config.JWT_TOKEN_LOCATION = ["cookies"] # Указываем что токены будут находиться в куках
+JWT_config.JWT_TOKEN_LOCATION = ["cookies"] # Указываем что токены будут находиться в куках
+
+security = AuthX(config=JWT_config)
 
 # TODO: Нужно добавить проверку наличия токена на хэндлер чата
 
@@ -60,12 +63,17 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     # Здесь мы берем первую ошибку из списка и превращаем её в строку
     err_msg = exc.errors()[0].get("msg")
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content={"status": "error", "detail": f"Ошибка валидации: {err_msg}"},
     )
 
-@app.get("/", response_class=HTMLResponse)
-@app.get("/chat", response_class=HTMLResponse)
+@app.exception_handler(ThereIsNoAccessError)
+async def theres_no_access_exception_handler(request: Request, exc: ThereIsNoAccessError):
+    # Перенаправляем на страницу для входа в учетную запись
+    return RedirectResponse(url="/auth")
+
+@app.get("/", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
+@app.get("/chat", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
 async def chat(request: Request):
     return templates.TemplateResponse(
         request=request,
@@ -100,7 +108,7 @@ async def register(data: RegisterSchema):
     return {"status": "ok", "message": "Пользователь создан"}
 
 @app.post("/login")
-async def login(data: LoginSchema):
+async def login(data: LoginSchema, response: Response):
     # Вызываем функцию из db.py
     success = await login_user(username=data.username, password=data.password)
 
@@ -110,8 +118,12 @@ async def login(data: LoginSchema):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Неверное имя пользователя или пароль"
         )
+    
+    # Выдача токена при успешной аутентификации
+    token = security.create_access_token(uid=data.username) # ! Нельзя передавать пароли и т.д.
+    response.set_cookie(JWT_config.JWT_ACCESS_COOKIE_NAME, token)
 
-    return {"status": "ok", "message": "Успешная авторизация"}
+    return {"status": "ok", "message": "Успешная авторизация", "access_token": token}
 
 # ! Функция для выхода из аккаунта, чтоб куки типА удалялись
 @app.post("/logout")
