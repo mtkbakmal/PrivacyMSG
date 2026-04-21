@@ -1,3 +1,4 @@
+/* === ОБЩИЕ ПЕРЕМЕННЫЕ И СБРОС СТИЛЕЙ === */
 :root {
     --bg-dark: #0f172a;
     --side-bg: #1e293b;
@@ -7,84 +8,63 @@
     --text-dim: #94a3b8;
     --input-bg: #334155;
     --msg-out: #0369a1;
+    --danger: #ef4444;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; }
+* { 
+    box-sizing: border-box; 
+    margin: 0; 
+    padding: 0; 
+}
+
 body {
     font-family: 'Inter', sans-serif;
     background-color: var(--bg-dark);
     color: var(--text-main);
-    height: 100vh;
+    min-height: 100vh;
+    display: flex;
+}
+
+.hidden { display: none !important; }
+
+/* Общие элементы форм */
+input { 
+    width: 100%; 
+    padding: 12px; 
+    margin-bottom: 15px; 
+    border-radius: 8px; 
+    border: 1px solid var(--input-bg); 
+    background: var(--input-bg); 
+    color: white; 
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.btn-primary { 
+    width: 100%; 
+    padding: 12px; 
+    background: var(--accent); 
+    border: none; 
+    border-radius: 8px; 
+    font-weight: 600; 
+    cursor: pointer; 
+}
+
+/* === СЕКЦИЯ: АВТОРИЗАЦИЯ === */
+.auth-wrapper { /* ! добавлена обертка для центрирования карты входа */
+    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.hidden { display: none !important; }
-
-/* Центрирование окна входа */
-.auth-card { width: 350px; background: var(--side-bg); padding: 40px; border-radius: 12px; text-align: center; }
-
-/* Основной контейнер мессенджера */
-.messenger-container {
-    width: 95vw;
-    height: 90vh;
-    max-width: 1200px;
-    display: flex;
-    background: var(--side-bg);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+.auth-card { 
+    width: 350px; 
+    background: var(--side-bg); 
+    padding: 40px; 
+    border-radius: 12px; 
+    text-align: center; 
 }
-
-/* Боковая панель */
-.sidebar {
-    width: 300px;
-    background: var(--side-bg);
-    border-right: 1px solid rgba(255,255,255,0.1);
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar-header { padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); font-weight: 600; color: var(--accent); }
-
-.contact {
-    display: flex;
-    align-items: center;
-    padding: 15px 20px;
-    cursor: pointer;
-    transition: background 0.2s;
-}
-.contact:hover { background: rgba(255,255,255,0.05); }
-.contact.active { background: rgba(56, 189, 248, 0.1); border-left: 3px solid var(--accent); }
-
-.avatar { width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; color: var(--bg-dark); }
-.contact-info .name { display: block; font-size: 0.95rem; }
-.contact-info .status { font-size: 0.75rem; color: var(--text-dim); }
-
-/* Зона чата */
-.chat-main { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); }
-.chat-header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-
-.messages-area { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; }
-
-/* Пузыри сообщений */
-.msg { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; }
-.msg.system { align-self: center; background: none; color: var(--text-dim); font-size: 0.75rem; }
-.msg.incoming { align-self: flex-start; background: var(--input-bg); border-bottom-left-radius: 2px; }
-.msg.outgoing { align-self: flex-end; background: var(--msg-out); border-bottom-right-radius: 2px; }
-
-/* Поле ввода */
-.chat-input-area { padding: 20px; display: flex; gap: 10px; background: var(--side-bg); }
-.chat-input-area input { flex: 1; padding: 12px; background: var(--input-bg); border: none; border-radius: 8px; color: white; outline: none; }
-#send-btn { width: 45px; background: var(--accent); border: none; border-radius: 8px; cursor: pointer; font-size: 1.2rem; }
-
-/* Общие кнопки и инпуты */
-input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--input-bg); background: var(--input-bg); color: white; }
-.btn-primary { width: 100%; padding: 12px; background: var(--accent); border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
-.btn-small { padding: 5px 10px; background: none; border: 1px solid var(--text-dim); color: var(--text-dim); border-radius: 5px; cursor: pointer; font-size: 0.8rem; }
-
-/* Добавьте это к вашему существующему style.css */
 
 .auth-tabs {
     display: flex;
@@ -111,24 +91,168 @@ input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; bor
     border-bottom: 2px solid var(--accent);
 }
 
-.auth-tab:hover {
-    color: var(--text-main);
+.auth-tab:hover { color: var(--text-main); }
+
+
+/* === СЕКЦИЯ: ОБЩАЯ БОКОВАЯ ПАНЕЛЬ И ЛЕЙАУТ === */
+.sidebar {
+    width: 300px;
+    background: var(--side-bg);
+    border-right: 1px solid rgba(255,255,255,0.1);
+    display: flex;
+    flex-direction: column;
+    padding: 20px 0; /* ! унифицирован паддинг */
 }
 
-/* Плавное появление полей */
-#email.hidden {
-    display: none;
+/* Стили для админки внутри sidebar */
+.sidebar h2 {
+    color: var(--accent);
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    padding: 0 20px;
 }
 
-#auth-form input {
-    transition: all 0.3s ease;
+.sidebar nav { padding: 0 20px; }
+
+/* Стили для мессенджера внутри sidebar */
+.sidebar-header { 
+    padding: 0 20px 20px 20px; 
+    border-bottom: 1px solid rgba(255,255,255,0.1); 
+    font-weight: 600; 
+    color: var(--accent); 
 }
 
-/* Улучшение скроллбара для сообщений */
-.messages-area::-webkit-scrollbar {
-    width: 6px;
+
+/* === СЕКЦИЯ: КОНТЕНТ АДМИН-ПАНЕЛИ === */
+.main-content {
+    flex-grow: 1;
+    padding: 40px;
 }
-.messages-area::-webkit-scrollbar-thumb {
-    background: var(--input-bg);
-    border-radius: 10px;
+
+.table-container {
+    background-color: var(--side-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+thead { background-color: var(--input-bg); }
+
+th {
+    padding: 16px;
+    color: var(--accent);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+td {
+    padding: 16px;
+    border-bottom: 1px solid var(--input-bg);
+    color: var(--text-dim);
+    font-size: 0.95rem;
+}
+
+tr:hover { background-color: rgba(56, 189, 248, 0.03); }
+
+.username-cell { color: var(--text-main); font-weight: 500; }
+
+.btn-delete {
+    background-color: transparent;
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 0.85rem;
+}
+
+.btn-delete:hover {
+    background-color: var(--danger);
+    color: white;
+}
+
+
+/* === СЕКЦИЯ: МЕССЕНДЖЕР === */
+.messenger-wrapper { /* ! добавлена обертка для центрирования мессенджера */
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.messenger-container {
+    width: 95vw;
+    height: 90vh;
+    max-width: 1200px;
+    display: flex;
+    background: var(--side-bg);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.contact {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.contact:hover { background: rgba(255,255,255,0.05); }
+.contact.active { background: rgba(56, 189, 248, 0.1); border-left: 3px solid var(--accent); }
+
+.avatar { width: 40px; height: 40px; background: var(--accent); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: bold; color: var(--bg-dark); }
+.contact-info .name { display: block; font-size: 0.95rem; }
+.contact-info .status { font-size: 0.75rem; color: var(--text-dim); }
+
+.chat-main { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); }
+.chat-header { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+
+.messages-area { 
+    flex: 1; 
+    padding: 20px; 
+    overflow-y: auto; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 10px; 
+}
+
+/* Скроллбар */
+.messages-area::-webkit-scrollbar { width: 6px; }
+.messages-area::-webkit-scrollbar-thumb { background: var(--input-bg); border-radius: 10px; }
+
+.msg { max-width: 70%; padding: 10px 15px; border-radius: 12px; font-size: 0.9rem; line-height: 1.4; }
+.msg.system { align-self: center; background: none; color: var(--text-dim); font-size: 0.75rem; }
+.msg.incoming { align-self: flex-start; background: var(--input-bg); border-bottom-left-radius: 2px; }
+.msg.outgoing { align-self: flex-end; background: var(--msg-out); border-bottom-right-radius: 2px; }
+
+.chat-input-area { padding: 20px; display: flex; gap: 10px; background: var(--side-bg); }
+.chat-input-area input { margin-bottom: 0; } /* ! убран нижний отступ для инпута в чате */
+
+#send-btn { 
+    width: 45px; 
+    background: var(--accent); 
+    border: none; 
+    border-radius: 8px; 
+    cursor: pointer; 
+    font-size: 1.2rem; 
+}
+
+.btn-small { 
+    padding: 5px 10px; 
+    background: none; 
+    border: 1px solid var(--text-dim); 
+    color: var(--text-dim); 
+    border-radius: 5px; 
+    cursor: pointer; 
+    font-size: 0.8rem; 
 }

@@ -80,9 +80,17 @@ async def theres_no_access_exception_handler(request: Request, exc: ThereIsNoAcc
     # Перенаправляем на страницу для входа в учетную запись
     return RedirectResponse(url="/auth")
 
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_handler(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="admin.html",
+        context={"title": "Админ панель"}
+    )
+
 @app.get("/", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
 @app.get("/chat", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
-async def chat(request: Request):
+async def chat_handler(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="chat.html",
@@ -90,7 +98,7 @@ async def chat(request: Request):
     )
 
 @app.get("/auth", response_class=HTMLResponse)
-async def auth(request: Request):
+async def auth_panel_handler(request: Request):
     return templates.TemplateResponse(
         request=request,
         name="auth.html",
@@ -98,7 +106,7 @@ async def auth(request: Request):
     )
 
 @app.post("/register")
-async def register(data: RegisterSchema):
+async def register_handler(data: RegisterSchema):
     # немного адаптируем логику вызова
     try:
         user = await add_new_user(
@@ -116,7 +124,7 @@ async def register(data: RegisterSchema):
     return {"status": "ok", "message": "Пользователь создан"}
 
 @app.post("/login")
-async def login(data: LoginSchema, response: Response):
+async def login_handler(data: LoginSchema, response: Response):
     # Вызываем функцию из db.py
     success = await login_user(username=data.username, password=data.password)
 
@@ -134,7 +142,7 @@ async def login(data: LoginSchema, response: Response):
     return {"status": "ok", "message": "Успешная авторизация", "access_token": token}
 
 @app.post("/logout")
-async def logout(response: Response):
+async def logout_handler(response: Response):
     response.delete_cookie(JWT_config.JWT_ACCESS_COOKIE_NAME)
     return {"status": "ok", "message": "Вы вышли из системы"}
 
