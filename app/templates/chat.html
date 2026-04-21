@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат | PrivacyMSG</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <div id="chat-screen" class="messenger-container">
+            <aside class="sidebar">
+                <div class="sidebar-header">
+                    <span id="user-display">@me</span>
+                </div>
+                <div class="contact-list">
+                    <div class="contact active">
+                        <div class="avatar">S</div>
+                        <div class="contact-info">
+                            <span class="name">Support Bot</span>
+                            <span class="status">online</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="chat-main">
+                <header class="chat-header">
+                    <div class="current-contact">Чат с: <strong>Support Bot</strong></div>
+                    <button onclick="logout()" class="btn-small">Выйти</button>
+                </header>
+
+                <div id="chat-messages" class="messages-area">
+                    <div class="msg system">Безопасное соединение установлено.</div>
+                </div>
+
+                <form class="chat-input-area" id="message-form">
+                    <input type="text" id="msg-input" placeholder="Введите сообщение..." autocomplete="off">
+                    <button type="submit" id="send-btn">➤</button>
+                </form>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // Отображаем имя пользователя при загрузке
+        const username = localStorage.getItem('chat_username') || 'Guest';
+        document.getElementById('user-display').innerText = `@${username}`;
+
+        function logout() {
+            localStorage.removeItem('chat_username');
+            window.location.href = '/'; // Возврат на страницу логина
+        }
+
+        document.getElementById('message-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = document.getElementById('msg-input');
+            if (!input.value.trim()) return;
+
+            const msgArea = document.getElementById('chat-messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'msg outgoing';
+            msgDiv.innerText = input.value;
+            msgArea.appendChild(msgDiv);
+
+            input.value = '';
+            msgArea.scrollTop = msgArea.scrollHeight;
+        };
+    </script>
+</body>
+</html>

@@ -53,10 +53,19 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+@app.get("/chat", response_class=HTMLResponse)
+async def chat(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="index.html",
+        name="chat.html",
+        context={"title": "Главная"}
+    )
+
+@app.get("/auth", response_class=HTMLResponse)
+async def auth(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="auth.html",
         context={"title": "Главная"}
     )
 

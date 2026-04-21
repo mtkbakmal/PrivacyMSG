@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ title }} | PrivacyMSG</title>
+    <title>Авторизация | PrivacyMSG</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
 </head>
@@ -24,51 +24,14 @@
                 <button type="submit" id="auth-submit" class="btn-primary">Войти</button>
             </form>
         </div>
-
-        <div id="chat-screen" class="messenger-container hidden">
-            <aside class="sidebar">
-                <div class="sidebar-header">
-                    <span id="user-display">@me</span>
-                </div>
-                <div class="contact-list">
-                    <div class="contact active">
-                        <div class="avatar">S</div>
-                        <div class="contact-info">
-                            <span class="name">Support Bot</span>
-                            <span class="status">online</span>
-                        </div>
-                    </div>
-                </div>
-            </aside>
-
-            <main class="chat-main">
-                <header class="chat-header">
-                    <div class="current-contact">Чат с: <strong>Support Bot</strong></div>
-                    <button onclick="location.reload()" class="btn-small">Выйти</button>
-                </header>
-
-                <div id="chat-messages" class="messages-area">
-                    <div class="msg system">Безопасное соединение установлено.</div>
-                </div>
-
-                <form class="chat-input-area" id="message-form">
-                    <input type="text" id="msg-input" placeholder="Введите сообщение..." autocomplete="off">
-                    <button type="submit" id="send-btn">➤</button>
-                </form>
-            </main>
-        </div>
     </div>
 
     <script>
         const authForm = document.getElementById('auth-form');
-        const authScreen = document.getElementById('auth-screen');
-        const chatScreen = document.getElementById('chat-screen');
         const emailInput = document.getElementById('email');
         const authSubmitBtn = document.getElementById('auth-submit');
+        let currentMode = 'login';
 
-        let currentMode = 'login'; // По умолчанию режим входа
-
-        // Функция переключения вкладок
         function switchAuth(mode) {
             currentMode = mode;
             if (mode === 'register') {
@@ -88,15 +51,13 @@
 
         authForm.onsubmit = async (e) => {
             e.preventDefault();
-
             const username = document.getElementById('username').value;
             const password = document.getElementById('password').value;
             const email = emailInput.value;
 
-            // Определяем URL и тело запроса в зависимости от режима
             const url = currentMode === 'login' ? '/login' : '/register';
-            const body = currentMode === 'login'
-                ? { username, password }
+            const body = currentMode === 'login' 
+                ? { username, password } 
                 : { username, password, email };
 
             try {
@@ -113,9 +74,10 @@
                         alert("Регистрация успешна! Теперь войдите.");
                         switchAuth('login');
                     } else {
-                        authScreen.classList.add('hidden');
-                        chatScreen.classList.remove('hidden');
-                        document.getElementById('user-display').innerText = `@${username}`;
+                        // Сохраняем имя пользователя для чата (например, в localStorage)
+                        localStorage.setItem('chat_username', username);
+                        // Перенаправляем на страницу чата
+                        window.location.href = '/chat'; 
                     }
                 } else {
                     alert(result.detail || "Произошла ошибка");
@@ -124,22 +86,6 @@
                 console.error("Ошибка запроса:", error);
                 alert("Сервер не отвечает");
             }
-        };
-
-        // Логика отправки сообщения в интерфейс (визуал)
-        document.getElementById('message-form').onsubmit = (e) => {
-            e.preventDefault();
-            const input = document.getElementById('msg-input');
-            if (!input.value.trim()) return;
-
-            const msgArea = document.getElementById('chat-messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = 'msg outgoing';
-            msgDiv.innerText = input.value;
-            msgArea.appendChild(msgDiv);
-
-            input.value = '';
-            msgArea.scrollTop = msgArea.scrollHeight;
         };
     </script>
 </body>
