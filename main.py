@@ -6,8 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from app.db.db import login_user, add_new_user, init_db
+from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
 
+from app.db.db import login_user, add_new_user, init_db
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
 common_responses = {
@@ -38,8 +39,18 @@ app = FastAPI(
     version="1.0.0",
     responses=common_responses
 )
+
+config = AuthXConfig()
+config.JWT_SECRET_KEY = ... # JWT код
+config.JWT_ACCESS_COOKIE_NAME = "access_token" # Название токенов куки
+# ! ПОКА ЧТО БУДЕМ ХРАНИТЬ В КУКАХ, ПОТОМ НАДО ПЕРЕХОДИТЬ НА СЕССИИ ИЛИ ЗАГОЛОВКИ
+config.JWT_TOKEN_LOCATION = ["cookies"] # Указываем что токены будут находиться в куках
+
+# TODO: Нужно добавить проверку наличия токена на хэндлер чата
+
 # Подключение статических файлов (CSS, JS)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
 # Подключение html
 templates = Jinja2Templates(directory="app/templates")
 
