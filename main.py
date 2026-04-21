@@ -10,7 +10,7 @@ from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
 from authx.exceptions import MissingTokenError as ThereIsNoAccessError # Получение ошибки отсутсвия токена доступа
 from contextlib import asynccontextmanager
 
-from app.db.db import login_user, add_new_user, init_db
+from app.db.db import login_user, add_new_user, init_db, get_users_list, delete_user_from_db
 from app.config.config import settings as cfg
 from app.models.baseModels import RegisterSchema, LoginSchema # * Перенёс все схемы/модели в отдельный каталог
 
@@ -82,11 +82,17 @@ async def theres_no_access_exception_handler(request: Request, exc: ThereIsNoAcc
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_handler(request: Request):
+    users = await get_users_list()
     return templates.TemplateResponse(
         request=request,
-        name="admin.html",
-        context={"title": "Админ панель"}
+        name="admin.html", 
+        context={"request": request, "users": users}
     )
+
+@app.post("/users/delete/{user_id}")
+async def delete_user(user_id: int):
+    await delete_user_from_db(user_id)
+    return {"status": "ok", "message": "Пользователь удален"}
 
 @app.get("/", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
 @app.get("/chat", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])

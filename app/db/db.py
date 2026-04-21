@@ -48,7 +48,7 @@ async def add_new_user(username: str, description: str | None, email: str, passw
         return new_user
 
 # Функция удаления пользователя из БД
-async def delete_user(id: int):
+async def delete_user_from_db(id: int):
     async with async_session() as session:
         # Если пользователя не существует, то функция ничего не возвращает
         exist = await session.scalar(select(User).where(User.id==id))
@@ -82,4 +82,11 @@ async def is_there_user_with_email(email: str) -> bool:
     async with async_session() as session:
         exist = await session.scalar(select(User).where(User.email==email))
         return True if exist else False
+    
+# Получение списка всех пользователей
+async def get_users_list() -> list:
+    async with async_session() as session:
+        result = await session.execute(select(User))
+        users = result.scalars().all()
+        return list(users)
 
