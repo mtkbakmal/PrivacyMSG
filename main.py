@@ -101,6 +101,11 @@ async def login(data: LoginSchema):
 
     return {"status": "ok", "message": "Успешная авторизация"}
 
+# ! Функция для выхода из аккаунта, чтоб куки типА удалялись
+@app.post("/logout")
+async def logout():
+    pass
+
 async def main():
     await init_db()
 
