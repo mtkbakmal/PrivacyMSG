@@ -9,20 +9,22 @@
 </head>
 <body>
     <div class="app-container">
-        <div id="auth-screen" class="card auth-card">
-            <div class="auth-tabs">
-                <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Вход</button>
-                <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">Регистрация</button>
+        <div class="auth-wrapper">
+            <div id="auth-screen" class="card auth-card">
+                <div class="auth-tabs">
+                    <button id="tab-login" class="auth-tab active" onclick="switchAuth('login')">Вход</button>
+                    <button id="tab-register" class="auth-tab" onclick="switchAuth('register')">Регистрация</button>
+                </div>
+    
+                <h2 id="auth-title">PrivacyMSG</h2>
+    
+                <form id="auth-form">
+                    <input type="text" id="username" placeholder="Имя пользователя" required>
+                    <input type="email" id="email" placeholder="Электронная почта" class="hidden">
+                    <input type="password" id="password" placeholder="Пароль" required>
+                    <button type="submit" id="auth-submit" class="btn-primary">Войти</button>
+                </form>
             </div>
-
-            <h2 id="auth-title">PrivacyMSG</h2>
-
-            <form id="auth-form">
-                <input type="text" id="username" placeholder="Имя пользователя" required>
-                <input type="email" id="email" placeholder="Электронная почта" class="hidden">
-                <input type="password" id="password" placeholder="Пароль" required>
-                <button type="submit" id="auth-submit" class="btn-primary">Войти</button>
-            </form>
         </div>
     </div>
 
