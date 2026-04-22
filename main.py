@@ -91,7 +91,7 @@ async def admin_handler(request: Request):
 @app.post("/users/delete/{user_id}")
 async def delete_user(user_id: int):
     await delete_user_from_db(user_id)
-    return {"status": "ok", "message": "Пользователь удален"}
+    return RedirectResponse(url="/admin")
 
 @app.get("/", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
 @app.get("/chat", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
