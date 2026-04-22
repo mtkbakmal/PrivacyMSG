@@ -83,8 +83,11 @@ async def theres_no_access_exception_handler(request: Request, exc: ThereIsNoAcc
 # Обработка ошибки когда есть JWT токен (кука), но пользователя нет в базе
 @app.exception_handler(JWTEr)
 async def JWT_error_exception_handler(request: Request, exc: JWTEr):
+    response = RedirectResponse(url="/auth")
+    # Удаляем куки
+    response.delete_cookie(JWT_config.JWT_ACCESS_COOKIE_NAME)
     # Перенаправляем на страницу для входа в учетную запись
-    return(RedirectResponse(url="/auth"))
+    return response
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_handler(request: Request):
