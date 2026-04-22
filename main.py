@@ -1,5 +1,4 @@
 import uvicorn
-import asyncio
 from fastapi import FastAPI, Request, HTTPException, status, Response, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
