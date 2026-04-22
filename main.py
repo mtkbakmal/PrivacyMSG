@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from authx import AuthX, AuthXConfig # Библиотека для JWT tokens
-from authx.exceptions import MissingTokenError as ThereIsNoAccessError # Получение ошибки отсутсвия токена доступа
+from authx.exceptions import MissingTokenError as ThereIsNoAccessError, JWTDecodeError as JWTEr # Получение ошибки отсутсвия токена доступа
 from contextlib import asynccontextmanager
 
 from app.db.db import login_user, add_new_user, init_db, get_users_list, delete_user_from_db
@@ -74,10 +74,17 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         content={"status": "error", "detail": f"Ошибка валидации: {err_msg}"},
     )
 
+# Обработка ошибки когда отсутсвует JWT токен (Нет доступа)
 @app.exception_handler(ThereIsNoAccessError)
 async def theres_no_access_exception_handler(request: Request, exc: ThereIsNoAccessError):
     # Перенаправляем на страницу для входа в учетную запись
     return RedirectResponse(url="/auth")
+
+# Обработка ошибки когда есть JWT токен (кука), но пользователя нет в базе
+@app.exception_handler(JWTEr)
+async def JWT_error_exception_handler(request: Request, exc: JWTEr):
+    # Перенаправляем на страницу для входа в учетную запись
+    return(RedirectResponse(url="/auth"))
 
 @app.get("/admin", response_class=HTMLResponse)
 async def admin_handler(request: Request):
@@ -91,7 +98,7 @@ async def admin_handler(request: Request):
 @app.post("/users/delete/{user_id}")
 async def delete_user(user_id: int):
     await delete_user_from_db(user_id)
-    return RedirectResponse(url="/admin")
+    return RedirectResponse(url="/admin", status_code=status.HTTP_303_SEE_OTHER)
 
 @app.get("/", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
 @app.get("/chat", response_class=HTMLResponse, dependencies=[Depends(security.access_token_required)])
