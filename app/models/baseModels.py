@@ -2,7 +2,7 @@ from datetime import datetime as dt
 from sqlalchemy import String, func
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from pydantic import BaseModel, Field, EmailStr
-from typing import Optional
+from typing import Optional, Literal
 
 # * --DATABASE--
 
@@ -31,3 +31,9 @@ class RegisterSchema(BaseModel):
 class LoginSchema(BaseModel):
     username: str = Field(..., min_length=3, max_length=32, pattern=r"^[a-zA-Z0-9_]+$")
     password: str = Field(..., min_length=8)
+
+class MessageSchema(BaseModel):
+    from_user: str
+    to_user: str
+    send_data: dt = dt.now()
+    type: Literal["txt", "img", "vid"]

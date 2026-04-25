@@ -2,7 +2,7 @@ from sqlalchemy import select, delete, or_
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from app.db.security import hash_password, verify_password
 from app.config.config import settings as cfg
-from app.models.baseModels import Base, User
+from app.models.baseModels import Base, User # Импорт моделей для БД из models.baseModels
 
 DATABASE_URL = cfg.get_db_url
 
