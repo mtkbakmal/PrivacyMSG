@@ -53,6 +53,7 @@ input {
 /* === СЕКЦИЯ: АВТОРИЗАЦИЯ === */
 .auth-wrapper { /* ! добавлена обертка для центрирования карты входа */
     width: 100%;
+    min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
